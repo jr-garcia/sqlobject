@@ -1,0 +1,4 @@
+#! /bin/sh
+
+cd "`dirname $0`"/.. &&
+exec sphinx-apidoc -Me -s txt -o docs/api sqlobject
