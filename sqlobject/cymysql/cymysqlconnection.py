@@ -21,23 +21,22 @@ class CyMySQLConnection(MySQLConnection):
         self.user = user
         self.password = password
         self.kw = {}
-        for key in kw.keys():
+        self.dbEncoding = None
+
+        keys = dict(kw).keys()
+        for key in keys:
             if key in ("unix_socket", "init_command",
                        "read_default_file", "read_default_group", "conv"):
                 self.kw[key] = kw.pop(key)
-        for key in kw.keys():
-            if key in ("connect_timeout", "compress", "named_pipe", "use_unicode",
-                       "client_flag", "local_infile"):
+            elif key in ("connect_timeout", "compress", "named_pipe", "use_unicode",
+                         "client_flag", "local_infile"):
                 self.kw[key] = int(kw.pop(key))
-        for key in kw.keys():
-            if key in ("ssl_key", "ssl_cert", "ssl_ca", "ssl_capath"):
+            elif key in ("ssl_key", "ssl_cert", "ssl_ca", "ssl_capath"):
                 if "ssl" not in self.kw:
                     self.kw["ssl"] = {}
                 self.kw["ssl"][key[4:]] = kw.pop(key)
-        if "charset" in kw:
-            self.dbEncoding = self.kw["charset"] = kw.pop("charset")
-        else:
-            self.dbEncoding = None
+            elif key == "charset":
+                self.dbEncoding = self.kw["charset"] = kw.pop("charset")
 
         global mysql_Bin
         if not PY2 and mysql_Bin is None:
@@ -53,7 +52,7 @@ class CyMySQLConnection(MySQLConnection):
         dbEncoding = self.dbEncoding
         if dbEncoding:
             if not hasattr(Connection, 'set_character_set'):
-                # monkeypatch pre cymysql 1.2.1
+                # monkeypatch pre mysqldb 1.2.1
                 def character_set_name():
                     return dbEncoding + '_' + dbEncoding
 
