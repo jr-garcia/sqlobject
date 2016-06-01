@@ -1099,6 +1099,7 @@ from . import firebird  # noqa
 from . import maxdb  # noqa
 from . import mssql  # noqa
 from . import mysql  # noqa
+from . import cymysql  # noqa
 from . import postgres  # noqa
 from . import rdbhost  # noqa
 from . import sqlite  # noqa
