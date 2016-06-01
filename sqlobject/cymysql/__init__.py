@@ -5,4 +5,4 @@ def builder():
     from . import cymysqlconnection
     return cymysqlconnection.CyMySQLConnection
 
-registerConnection(['cymysql'], builder)
+registerConnection(['pymysql'], builder)

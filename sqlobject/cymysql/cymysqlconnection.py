@@ -1,28 +1,36 @@
 from sqlobject.mysql.mysqlconnection import *
 
-import cymysql, cymysql.constants.CLIENT, cymysql.constants.ER
-from cymysql.connections import Connection
+try:
+    import cymysql  # , cymysql.constants.CR, cymysql.constants.ER
+    from cymysql.connections import Connection
+
+    mysqlmodule = cymysql
+except ImportError:
+    import pymysql  # , pymysql.constants.CR, pymysql.constants.ER
+    from pymysql.connections import Connection
+
+    mysqlmodule = pymysql
 
 
 class CyMySQLConnection(MySQLConnection):
     def __init__(self, db, user, password='', host='localhost', port=0, **kw):
-        self.module = cymysql
+        self.module = mysqlmodule
         self.host = host
         self.port = port
         self.db = db
         self.user = user
         self.password = password
         self.kw = {}
-        for key in ("unix_socket", "init_command",
-                    "read_default_file", "read_default_group", "conv"):
-            if key in kw:
+        for key in kw.keys():
+            if key in ("unix_socket", "init_command",
+                       "read_default_file", "read_default_group", "conv"):
                 self.kw[key] = kw.pop(key)
-        for key in ("connect_timeout", "compress", "named_pipe", "use_unicode",
-                    "client_flag", "local_infile"):
-            if key in kw:
+        for key in kw.keys():
+            if key in ("connect_timeout", "compress", "named_pipe", "use_unicode",
+                       "client_flag", "local_infile"):
                 self.kw[key] = int(kw.pop(key))
-        for key in ("ssl_key", "ssl_cert", "ssl_ca", "ssl_capath"):
-            if key in kw:
+        for key in kw.keys():
+            if key in ("ssl_key", "ssl_cert", "ssl_ca", "ssl_capath"):
                 if "ssl" not in self.kw:
                     self.kw["ssl"] = {}
                 self.kw["ssl"][key[4:]] = kw.pop(key)
@@ -33,8 +41,8 @@ class CyMySQLConnection(MySQLConnection):
 
         global mysql_Bin
         if not PY2 and mysql_Bin is None:
-            mysql_Bin = cymysql.Binary
-            cymysql.Binary = lambda x: mysql_Bin(x).decode(
+            mysql_Bin = self.module.Binary
+            self.module.Binary = lambda x: mysql_Bin(x).decode(
                 'ascii', errors='surrogateescape')
 
         self._server_version = None
@@ -53,7 +61,7 @@ class CyMySQLConnection(MySQLConnection):
         try:
             kw = self.kw
             kw.update({'host': self.host, 'db': self.db,
-                        'user': self.user, 'passwd': self.password})
+                       'user': self.user, 'passwd': self.password})
             if self.port != 0:
                 kw['port'] = self.port
             conn = self.module.connect(**kw)
@@ -68,7 +76,7 @@ class CyMySQLConnection(MySQLConnection):
             conn.autocommit(bool(self.autoCommit))
 
         if dbEncoding:
-            if hasattr(conn, 'set_character_set'):  # cymysql 1.2.1 and later
+            if hasattr(conn, 'set_character_set'):
                 conn.set_character_set(dbEncoding)
             else:
                 conn.query("SET NAMES %s" % dbEncoding)
