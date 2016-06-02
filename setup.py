@@ -18,7 +18,7 @@ from sqlobject_version import version  # noqa: ignore flake8 E402
 
 subpackages = ['firebird', 'include',
                'inheritance', 'inheritance.tests',
-               'manager', 'maxdb', 'mysql', 'mssql', 'postgres', 'rdbhost',
+               'manager', 'maxdb', 'mysql', 'cymysql', 'mssql', 'postgres', 'rdbhost',
                'sqlite', 'sybase', 'tests', 'util',
                'versioning', 'versioning.test']
 
